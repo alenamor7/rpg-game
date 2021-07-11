@@ -1,8 +1,13 @@
 import './index.scss';
 import senseiWalk from './assets/Female-1-Walk.png';
+import terrainAtlas from './assets/terrain.png';
+import ClientGame from './client/ClientGame';
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
+
+const terrain = document.createElement('img');
+terrain.src = terrainAtlas;
 
 const spriteW = 48;
 const spriteH = 48;
@@ -39,81 +44,58 @@ document.addEventListener('keyup', keyUpHandler);
 const img = document.createElement('img');
 img.src = senseiWalk;
 
-// draw background
-function drawBackground() {
-  ctx.fillStyle = '#408DD2';
-  ctx.fillRect(canvas.width / 2 - 100, canvas.height / 2 - 50, 200, 100);
-  ctx.fillRect(50, 70, 200, 100);
-  ctx.fillRect(350, 70, 200, 100);
-  ctx.fillRect(canvas.width / 2 - 100, 450, 200, 100);
 
-  ctx.lineWidth = 7;
-  ctx.beginPath();
-  ctx.strokeStyle = '#408DD2';
+function walk() {
+  if (isPressed) {
+    cycle = (cycle + 1) % shots;
+    switch (buttonPressed) {
+      case 'Down':
+      case 'ArrowDown':
+        pY += step;
+        if (pY > canvas.height - spriteW) {
+          pY = canvas.height - spriteW;
+        }
+        direction = spriteDirection.bottom * spriteH;
+        break;
+      case 'Left':
+      case 'ArrowLeft':
+        pX -= step;
+        if (pX < 0) {
+          pX = 0;
+        }
+        direction = spriteDirection.left * spriteH;
+        break;
+      case 'Right':
+      case 'ArrowRight':
+        pX += step;
+        if (pX > canvas.width - spriteH) {
+          pX = canvas.width - spriteH;
+        }
+        direction = spriteDirection.right * spriteH;
+        break;
+      case 'Up':
+      case 'ArrowUp':
+        pY -= step;
+        if (pY < 0) {
+          pY = 0;
+        }
+        direction = spriteDirection.top * spriteH;
+        break;
+      default:
+        console.log('Pressed button is not found');
+    }
+  }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // drawBackground();
+  ctx.drawImage(img, cycle * spriteW, direction, spriteW, spriteH, pX, pY, spriteW, spriteH);
 
-  ctx.moveTo(200, 270);
-  ctx.lineTo(170, 270);
-  ctx.lineTo(170, 170);
-  ctx.lineTo(110, 170);
-  ctx.lineTo(110, 330);
-  ctx.lineTo(200, 330);
-
-  ctx.moveTo(250, 90);
-  ctx.lineTo(350, 90);
-  ctx.moveTo(250, 150);
-  ctx.lineTo(350, 150);
-
-  ctx.moveTo(270, 350);
-  ctx.lineTo(270, 450);
-  ctx.moveTo(330, 350);
-  ctx.lineTo(330, 450);
-
-  ctx.stroke();
+  window.requestAnimationFrame(walk);
 }
 
 img.addEventListener('load', () => {
-  setInterval(() => {
-    if (isPressed) {
-      cycle = (cycle + 1) % shots;
-      switch (buttonPressed) {
-        case 'Down':
-        case 'ArrowDown':
-          pY += step;
-          if (pY > canvas.height - spriteW) {
-            pY = canvas.height - spriteW;
-          }
-          direction = spriteDirection.bottom * spriteH;
-          break;
-        case 'Left':
-        case 'ArrowLeft':
-          pX -= step;
-          if (pX < 0) {
-            pX = 0;
-          }
-          direction = spriteDirection.left * spriteH;
-          break;
-        case 'Right':
-        case 'ArrowRight':
-          pX += step;
-          if (pX > canvas.width - spriteH) {
-            pX = canvas.width - spriteH;
-          }
-          direction = spriteDirection.right * spriteH;
-          break;
-        case 'Up':
-        case 'ArrowUp':
-          pY -= step;
-          if (pY < 0) {
-            pY = 0;
-          }
-          direction = spriteDirection.top * spriteH;
-          break;
-        default:
-          console.log('Pressed button is not found');
-      }
-    }
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawBackground();
-    ctx.drawImage(img, cycle * spriteW, direction, spriteW, spriteH, pX, pY, spriteW, spriteH);
-  }, 120);
+  window.requestAnimationFrame(walk);
+});
+
+window.addEventListener('load', () => {
+  ClientGame.init({ tagId: 'game' });
 });
