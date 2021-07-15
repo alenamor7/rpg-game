@@ -44,7 +44,6 @@ document.addEventListener('keyup', keyUpHandler);
 const img = document.createElement('img');
 img.src = senseiWalk;
 
-
 function walk() {
   if (isPressed) {
     cycle = (cycle + 1) % shots;
