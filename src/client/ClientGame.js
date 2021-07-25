@@ -5,14 +5,6 @@ import levelCfg from '../configs/world.json';
 import sprites from '../configs/sprites';
 import gameObjects from '../configs/gameObjects.json';
 
-// describes col and row changes for each directions
-const directions = {
-  ArrowLeft: [-1, 0],
-  ArrowRight: [1, 0],
-  ArrowUp: [0, -1],
-  ArrowDown: [0, 1],
-};
-
 class ClientGame {
   constructor(cfg) {
     Object.assign(this, {
@@ -31,17 +23,22 @@ class ClientGame {
   }
 
   createEngine() {
-    return new ClientEngine(document.getElementById(this.cfg.tagId));
+    return new ClientEngine(document.getElementById(this.cfg.tagId), this);
   }
 
   createWorld() {
     return new ClientWorld(this, this.engine, levelCfg);
   }
 
+  getWorld() {
+    return this.map;
+  }
+
   initEngine() {
     this.engine.loadSprites(sprites).then(() => {
       this.map.init();
       this.engine.on('render', (_, timestamp) => {
+        this.engine.camera.focusAtCameraObject(this.player);
         this.map.render(timestamp);
       });
       this.engine.start();
@@ -51,24 +48,34 @@ class ClientGame {
 
   initKeys() {
     this.engine.input.onKey({
-      ArrowLeft: (keydown) => {
-        this.move('ArrowLeft', keydown);
-      },
-      ArrowRight: (keydown) => {
-        this.move('ArrowRight', keydown);
-      },
-      ArrowUp: (keydown) => {
-        this.move('ArrowUp', keydown);
-      },
-      ArrowDown: (keydown) => {
-        this.move('ArrowDown', keydown);
-      },
+      ArrowLeft: (keydown) => keydown && this.move('left'),
+      ArrowRight: (keydown) => keydown && this.move('right'),
+      ArrowUp: (keydown) => keydown && this.move('up'),
+      ArrowDown: (keydown) => keydown && this.move('down'),
     });
   }
 
-  move(direction, keydown) {
-    if (keydown) {
-      this.player.moveByCellCoord(...directions[direction], (cell) => cell.findObjectsByType('grass').length);
+  move(direction) {
+    // describes col and row changes for each directions
+    const directions = {
+      left: [-1, 0],
+      right: [1, 0],
+      up: [0, -1],
+      down: [0, 1],
+    };
+
+    const { player } = this;
+
+    if (player && player.motionProgress === 1) {
+      const canMove = player.moveByCellCoord(
+        ...directions[direction],
+        (cell) => cell.findObjectsByType('grass').length,
+      );
+
+      if (canMove) {
+        player.setState(direction);
+        player.once('motion-stopped', () => player.setState('main'));
+      }
     }
   }
 

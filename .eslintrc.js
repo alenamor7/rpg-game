@@ -10,6 +10,9 @@ module.exports = {
     },
     rules: {
         "no-plusplus": [0],
-        'max-len': ["error", { "code": 120 }]
+        'max-len': ["error", { "code": 130 }],
+        "no-bitwise": [0],
+        "no-return-assign": "warn",
+        "no-param-reassign": "warn",
     },
 };
