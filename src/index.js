@@ -9,6 +9,10 @@ const ctx = canvas.getContext('2d');
 const terrain = document.createElement('img');
 terrain.src = terrainAtlas;
 
+const startGameForm = document.querySelector('.start-game');
+const nameInput = document.getElementById('name');
+const startGameButton = document.getElementById('btn');
+
 const spriteW = 48;
 const spriteH = 48;
 const shots = 3; // each direction has 3 different images which should be changed while figure moves
@@ -91,10 +95,16 @@ function walk() {
   window.requestAnimationFrame(walk);
 }
 
+function initGame(e) {
+  e.preventDefault();
+  startGameForm.style.display = 'none';
+  ClientGame.init({ tagId: 'game', playerName: nameInput.value });
+}
+
 img.addEventListener('load', () => {
   window.requestAnimationFrame(walk);
 });
 
 window.addEventListener('load', () => {
-  ClientGame.init({ tagId: 'game' });
+  startGameButton.addEventListener('click', initGame);
 });
